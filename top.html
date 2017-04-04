@@ -1,0 +1,59 @@
+
+<script type="text/javascript">
+
+	var t_min = 0, t_max = 100, k = 1, temp_tinta = 25, durata_evaluare = 100, temp_initiala = 0;
+
+	var Fenotype = function(kp, ki, kd) {
+		this.kp = kp;
+		this.ki = ki;
+		this.kd = kd;
+		this.t0 = temp_initiala;
+		this.temp = temp_initiala;
+		this.integrala = Math.abs(temp_initiala);
+		this.t_2 = temp_initiala;
+		this.t_1 = temp_initiala;
+		this.t = 0;
+	}
+
+	Fenotype.prototype.pid = function() {
+		var e = Math.abs(temp_tinta - this.temp);
+		// console.log(e);
+		return this.kp * e + this.ki * this.integrala + this.kd * (this.t_2 - this.t_1);
+	}
+
+	Fenotype.prototype.nextTempertaure = function() {
+		var pid = this.pid();
+		console.log(pid);
+		if(pid < 1000)
+			return t_max + (this.t0 - t_max) * Math.exp(-k*this.t);
+		else
+			return t_min + (this.t0 - t_min) * Math.exp(-k*this.t);
+	}
+
+	Fenotype.prototype.evaluate = function(de) {
+		for(var i = 0; i < de; i++){
+
+			this.temp = this.nextTempertaure();
+			// console.log(this.temp);
+
+			if(this.t_1 >= this.t_2 >= this.temp || this.t_1 <= this.t_2 <= this.temp ) {
+				this.t ++;
+			} else {
+				this.t = 0;
+				this.t0 = this.temp;
+			}
+			
+			this.t_1 = this.t_2;
+			this.t_2 = this.temp;
+
+			this.integrala += Math.abs(temp_tinta-this.temp);
+		}
+
+		return 1/this.integrala;
+	}
+
+	var f = new Fenotype(1, 1.2, 0.001);
+	f.evaluate(100);
+	
+
+</script>
